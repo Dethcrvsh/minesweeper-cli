@@ -2,30 +2,57 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 #include <iostream>
+#include "board.h"
 
-GraphicsHandler::GraphicsHandler(int board_width, int board_height, Renderer *renderer) 
-    : board_width(board_width * 2), board_height(board_height), renderer(renderer) {
+GraphicsHandler::GraphicsHandler(Board *board, Renderer *renderer)
+    : board(board), renderer(renderer) {
 
-    draw_board(0, 0);
-    set_term_dim();
+    selection_x = 0;
+    selection_y = 0;
+
+    draw_board();
+    draw_board_selection();
 } 
 
+void GraphicsHandler::draw() const {
+    renderer->clear();
+    draw_board();
+    draw_board_selection();
+}
+
 void GraphicsHandler::set_term_dim() {
+    // TODO: Fix this
     // Check the terminal size
     struct winsize size;
     ioctl(STDOUT_FILENO, TIOCGWINSZ, &size);
 
-    this->term_width = size.ws_col;
-    this->term_height = size.ws_row;
+    term_width = size.ws_col;
+    term_height = size.ws_row;
 }
 
-void GraphicsHandler::draw_to_board(int x, int y, std::string text) const {
+void GraphicsHandler::draw_to_board(int x, int y, std::string text, Color color) const {
     auto coords = abs_to_board(x, y);
+
+    renderer->start_color(color);
     renderer->draw(coords.first, coords.second, text);
+    renderer->reset_color();
+}
+
+void GraphicsHandler::move_selection(int x, int y) {
+    selection_x += x;
+    selection_y += y;
+
+    // TODO: Remove hack
+    renderer->clear();
+    draw_board();
+    draw_board_selection();
 }
 
 std::pair<int, int> GraphicsHandler::abs_to_board(int x, int y) const {
-    return {x * (CELL_SIZE + 1) * 2 + 2, y * (CELL_SIZE + 1) + 1};
+    return {
+        x * (CELL_SIZE + 1) * 2 + 2 + BOARD_MARGIN_X, 
+        y * (CELL_SIZE + 1) + 1 + BOARD_MARGIN_Y
+    };
 }
 
 void GraphicsHandler::draw_box(int x_pos, int y_pos, int width, int height) const {
@@ -50,72 +77,106 @@ void GraphicsHandler::draw_box(int x_pos, int y_pos, int width, int height) cons
     }
 }
 
-void GraphicsHandler::draw_board(int x_pos, int y_pos) const {
-    // Draw the corners
-    const int width = this->board_width * (1 + this->CELL_SIZE);
-    const int height = this->board_height * (1 + this->CELL_SIZE);
+void GraphicsHandler::draw_board_selection() const {
+    std::pair<int, int> pos = abs_to_board(selection_x, selection_y);
 
-    renderer->draw(x_pos, y_pos, this->TOP_LEFT);
-    renderer->draw(x_pos + width, y_pos, this->TOP_RIGHT);
-    renderer->draw(x_pos, y_pos + height, this->BOTTOM_LEFT);
-    renderer->draw(x_pos + width, y_pos + height, this->BOTTOM_RIGHT);
+    renderer->start_color(SELECTION);
+    draw_box(pos.first - 2, pos.second - 1, (CELL_SIZE + 2)*2 - 1, CELL_SIZE + 2);
+    renderer->reset_color();
+}
+
+void GraphicsHandler::draw_board() const {
+    draw_board_outline();
+    draw_board_content();
+}
+
+void GraphicsHandler::draw_board_outline() const {
+    renderer->start_color(BOARD_OUTLINE);
+
+    // Draw the corners
+    const int width = this->board->get_width() * 2 * (1 + this->CELL_SIZE);
+    const int height = this->board->get_height() * (1 + this->CELL_SIZE);
+
+    renderer->draw(BOARD_MARGIN_X , BOARD_MARGIN_Y, this->TOP_LEFT);
+    renderer->draw(BOARD_MARGIN_X + width, BOARD_MARGIN_Y, this->TOP_RIGHT);
+    renderer->draw(BOARD_MARGIN_X , BOARD_MARGIN_Y+ height, this->BOTTOM_LEFT);
+    renderer->draw(BOARD_MARGIN_X + width, BOARD_MARGIN_Y+ height, this->BOTTOM_RIGHT);
 
     // Draw left vertical
     for (int y = 1; y < height; y++) {
         if (y % (1 + this->CELL_SIZE) == 0) {
-            renderer->draw(x_pos, y_pos + y, this->VERTICAL_LEFT);
+            renderer->draw(BOARD_MARGIN_X , BOARD_MARGIN_Y+ y, this->VERTICAL_LEFT);
         } else {
-            renderer->draw(x_pos, y_pos + y, this->VERTICAL);
+            renderer->draw(BOARD_MARGIN_X , BOARD_MARGIN_Y+ y, this->VERTICAL);
         }
     }
 
     // Draw right vertical
     for (int y = 1; y < height; y++) {
         if (y % (1 + this->CELL_SIZE) == 0) {
-            renderer->draw(x_pos + width, y_pos + y, this->VERTICAL_RIGHT);
+            renderer->draw(BOARD_MARGIN_X + width, BOARD_MARGIN_Y+ y, this->VERTICAL_RIGHT);
         } else {
-            renderer->draw(x_pos + width, y_pos + y, this->VERTICAL);
+            renderer->draw(BOARD_MARGIN_X + width, BOARD_MARGIN_Y+ y, this->VERTICAL);
         }
     }
 
     // Draw top horizontal
     for (int x = 1; x < width; x++) {
         if (x % ((1 + this->CELL_SIZE) * 2) == 0) {
-            renderer->draw(x_pos + x, y_pos, this->HORIZONTAL_TOP);
+            renderer->draw(BOARD_MARGIN_X + x, BOARD_MARGIN_Y, this->HORIZONTAL_TOP);
         } else {
-            renderer->draw(x_pos + x, y_pos, this->HORIZONTAL);
+            renderer->draw(BOARD_MARGIN_X + x, BOARD_MARGIN_Y, this->HORIZONTAL);
         }
     }
 
     // Draw bottom horizontal
     for (int x = 1; x < width; x++) {
         if (x % ((1 + this->CELL_SIZE) * 2) == 0) {
-            renderer->draw(x_pos + x, y_pos + height, this->HORIZONTAL_BOTTOM);
+            renderer->draw(BOARD_MARGIN_X + x, BOARD_MARGIN_Y+ height, this->HORIZONTAL_BOTTOM);
         } else {
-            renderer->draw(x_pos + x, y_pos + height, this->HORIZONTAL);
+            renderer->draw(BOARD_MARGIN_X + x, BOARD_MARGIN_Y+ height, this->HORIZONTAL);
         }
     }
 
     // Draw vertical lines
     for (int x = (1 + CELL_SIZE) * 2; x < width; x += (1 + CELL_SIZE) * 2) {
         for (int y = 1; y < height; y++) {
-            renderer->draw(x, y, VERTICAL);
+            renderer->draw(BOARD_MARGIN_X + x, BOARD_MARGIN_Y+ y, VERTICAL);
         }
     }
 
     // Draw horizontal lines
     for (int y = 1 + CELL_SIZE; y < height; y += 1 + CELL_SIZE) {
         for (int x = 1; x < width; x++) {
-            renderer->draw(x, y, HORIZONTAL);
+            renderer->draw(BOARD_MARGIN_X + x, BOARD_MARGIN_Y+ y, HORIZONTAL);
         }
     }
 
     // Draw crosses
     for (int y = 1 + CELL_SIZE; y < height; y += 1 + CELL_SIZE) {
         for (int x = (1 + CELL_SIZE) * 2; x < width; x += (1 + CELL_SIZE) * 2) {
-            renderer->draw(x, y, MIDDLE);
+            renderer->draw(BOARD_MARGIN_X + x, BOARD_MARGIN_Y+ y, MIDDLE);
+        }
+    }
+    
+    renderer->reset_color();
+}
+
+void GraphicsHandler::draw_board_content() const {
+    for (int y = 0; y < board->get_height(); y++) {
+        for (int x = 0; x < board->get_width(); x++) {
+            struct Square *square = board->get_square(x, y);
+
+            if (!square->is_open) {
+                draw_to_board(x, y, "■", white);
+                continue;
+            }
+
+            if (square->is_bomb || square->count == 0) {
+                continue; 
+            }
+
+            draw_to_board(x, y, std::to_string(square->count), NUMBER_COLOR.at(square->count));
         }
     }
 }
-
-

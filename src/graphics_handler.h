@@ -2,16 +2,20 @@
 #define _GRAPHICS_HANDLER
 
 #include "renderer.h"
+#include <unordered_map>
 
 class GraphicsHandler {
 public:
-    GraphicsHandler(int board_width, int board_height, Renderer *renderer);
+    GraphicsHandler(Board *board, Renderer *renderer);
 
-    void draw_box(int x_pos, int y_pos, int width, int height) const;
-    void draw_board(int x_pos, int y_pos) const;
-
-    // TODO: Should probably be private
-    void draw_to_board(int x, int y, std::string text) const;
+    void draw() const;
+    
+    // Move the selection in a given direction
+    void move_selection(int x, int y);
+    
+    // TODO: Not like this
+    int selection_x;
+    int selection_y;
 
 private:
     static const int CELL_SIZE = 1;
@@ -28,6 +32,25 @@ private:
     static constexpr char BOTTOM_RIGHT[] = "┘";
     static constexpr char BOTTOM_LEFT[] = "└";
 
+    static const int BOARD_MARGIN_X = 10;
+    static const int BOARD_MARGIN_Y = 0;
+
+    static const Color BOARD_OUTLINE = white;
+    static const Color SELECTION = yellow;
+
+    const std::unordered_map<int, Color> NUMBER_COLOR = {
+        {1, blue},
+        {2, green},
+        {3, red},
+        {4, magenta},
+        {5, yellow},
+        {6, cyan},
+        {7, black},
+        {8, white}
+    };
+
+    Board *board;
+
     int board_width;
     int board_height;
 
@@ -39,6 +62,15 @@ private:
     // Set the terminal dimensions
     void set_term_dim();
     std::pair<int, int> abs_to_board(int x, int y) const;
+
+    void draw_box(int x_pos, int y_pos, int width, int height) const;
+
+    void draw_board() const;
+    void draw_board_outline() const;
+    void draw_board_content() const;
+
+    void draw_to_board(int x, int y, std::string text, Color color) const;
+    void draw_board_selection() const;
 };
 
 #endif

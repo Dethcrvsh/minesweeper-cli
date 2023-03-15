@@ -3,6 +3,7 @@
 
 #include "board.h"
 #include <string>
+#include "term_colors.h"
 
 class Renderer {
 public:
@@ -11,6 +12,10 @@ public:
     ~Renderer();
 
     void draw(int x, int y, std::string text) const;
+    void clear() const;
+
+    void start_color(Color color) const;
+    void reset_color() const;
 
 private:
     // Ansi escape codes
@@ -26,7 +31,6 @@ private:
     void hide_cursor() const;
     void move_cursor(int x, int y) const;
     void reset_cursor() const;
-    void clear() const;
 
     // Draws a box at the given position
     void draw_box(int x_pos, int y_pos, int width, int height) const;

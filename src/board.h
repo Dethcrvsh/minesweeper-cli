@@ -19,13 +19,16 @@ public:
 
     void print() const;
 
+    int get_width() const;
+    int get_height() const;
+
+    void uncover(int x, int y);
+
 private:
     int width;
     int height;
     int bombs;
     std::vector<std::vector<struct Square>> board;
-
-    static constexpr char HORIZONTAL[] = "─";
 
     void init_board();
     void populate_bombs();

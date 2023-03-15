@@ -5,6 +5,7 @@
 #include "renderer.h"
 #include "key_observer.h"
 #include "graphics_handler.h"
+#include "keybinds.h"
 
 class Minesweeper {
 public:
@@ -25,6 +26,7 @@ private:
     Renderer *renderer;
     GraphicsHandler *g_handler;
     KeyObserver *k_obs;
+    struct Keybinds keybinds;
 
     //TODO: Probably remove this
     void draw() const;

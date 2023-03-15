@@ -3,19 +3,19 @@
 
 Minesweeper::Minesweeper(int width, int height, int bombs) 
     : width(width), height(height) {
-    this->board = new Board(width, height, bombs);
-    this->renderer = new Renderer(&std::cout);
-    this->g_handler = new GraphicsHandler(width, height, renderer);
-    this->k_obs = new KeyObserver();
+    board = new Board(width, height, bombs);
+    renderer = new Renderer(&std::cout);
+    g_handler = new GraphicsHandler(board, renderer);
+    k_obs = new KeyObserver();
 
     // Start listening for keystrokes
-    this->k_obs->add_listener(this, Minesweeper::key_listener);
-    this->k_obs->start_listening();
+    k_obs->add_listener(this, Minesweeper::key_listener);
+    k_obs->start_listening();
 }
 
 Minesweeper::~Minesweeper() {
-    delete this->board;
-    delete this->renderer;
+    delete board;
+    delete renderer;
 }
 
 void Minesweeper::key_listener(void* object, char key) {
@@ -25,13 +25,30 @@ void Minesweeper::key_listener(void* object, char key) {
 
 void Minesweeper::on_key_press(char key) {
     if (key == 'q') {
-        this->k_obs->end_listening();
+        k_obs->end_listening();
     }
 
-    this->draw();
+    auto key_it = keybinds.keybinds.find(key);
+
+    // Ignore if the key cannot be found in the map
+    if (key_it == keybinds.keybinds.end()) {
+        return;
+    }
+
+    Action action = key_it->second;
+    
+    switch(action) {
+        case MOVE_LEFT  :   g_handler->move_selection(-1, 0);     break;
+        case MOVE_RIGHT :   g_handler->move_selection(1, 0);      break;
+        case MOVE_UP    :   g_handler->move_selection(0, -1);     break;
+        case MOVE_DOWN  :   g_handler->move_selection(0, 1);      break;
+        case UNCOVER    :   board->uncover(g_handler->selection_x, g_handler->selection_y);     break;
+    }
+
+    g_handler->draw();
 }
 
-void Minesweeper::draw() const {
+/*void Minesweeper::draw() const {
     for (int x = 0; x < width; x++) {
         for (int y = 0; y < height; y++) {
             auto square = board->get_square(x, y);
@@ -53,4 +70,4 @@ void Minesweeper::draw() const {
             }
         }
     }
-}
+}*/

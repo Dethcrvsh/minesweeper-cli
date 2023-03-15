@@ -9,6 +9,6 @@ int main() {
     auto ms = new Minesweeper(width, height, bombs);
 
     delete ms;
-
+    
     return 0;
 }

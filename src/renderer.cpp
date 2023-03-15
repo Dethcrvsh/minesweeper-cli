@@ -15,6 +15,7 @@ Renderer::~Renderer() {
     this->show_cursor();
     this->clear();
     this->reset_cursor();
+
 }
 
 
@@ -52,8 +53,23 @@ void Renderer::clear() const {
     this->ansi_command(command);
 }
 
+void Renderer::start_color(Color color) const {
+    std::string color_out = "";
+    color_out
+        .append("1;3")
+        .append(std::to_string(color))
+        .append("m"); 
+
+    this->ansi_command(color_out);
+}
+
+void Renderer::reset_color() const {
+    std::string color_out = "0m";
+    this->ansi_command(color_out);
+}
+
 void Renderer::draw(int x, int y, std::string text) const {
-    this->move_cursor(x, y);
-    *this->stream << text;
+    move_cursor(x, y);
+    *stream << text;
 }
 

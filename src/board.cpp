@@ -23,6 +23,14 @@ void Board::init_board() {
     }
 }
 
+int Board::get_width() const { return width; }
+
+int Board::get_height() const { return height; }
+
+void Board::uncover(int x, int y) {
+    get_square(x, y)->is_open = true;
+}
+
 void Board::populate_bombs() {
     // Generate random seed
     srand(time(NULL));
@@ -32,7 +40,6 @@ void Board::populate_bombs() {
     while (bomb_count < this->bombs) {
         int rand_index = rand() % (this->width * this->height);
 
-        //TODO: Somethings up
         int x = rand_index % this->width;
         int y = rand_index / this->width;
 
