@@ -1,8 +1,8 @@
 #include "key_observer.h"
 #include <iostream>
 
-void KeyObserver::add_listener(std::function<void(char)> listener) {
-    this->listeners.push_back(listener);
+void KeyObserver::add_listener(void *object, std::function<void(void*, char)> listener) {
+    this->listeners.push_back({object, listener});
 }
 
 void KeyObserver::start_listening() {
@@ -20,8 +20,10 @@ void KeyObserver::listen() const {
     while(this->is_listening) {
         char key = getchar();
         
-        for (auto listener : this->listeners) {
-            listener(key);
+        for (auto entry: this->listeners) {
+            auto object = entry.first;
+            auto listener = entry.second;
+            listener(object, key); 
         }
     }
 }

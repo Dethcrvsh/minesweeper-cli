@@ -1,14 +1,35 @@
-#include "board.h"
-#include "key_observer.h"
+#include "minesweeper.h"
 #include <iostream>
 
-int main() {
-    int width = 30;
-    int height = 16;
+Minesweeper::Minesweeper(int width, int height, int bombs) 
+    : width(width), height(height) {
+    this->board = new Board(width, height, bombs);
+    this->renderer = new Renderer(width, height, &std::cout);
+    this->k_obs = new KeyObserver();
 
-    Renderer *renderer = new Renderer(width, height, &std::cout);
-    Board *board = new Board(width, height, 99);
+    this->k_obs->add_listener(this, Minesweeper::key_listener);
+    this->k_obs->start_listening();
+}
 
+Minesweeper::~Minesweeper() {
+    delete this->board;
+    delete this->renderer;
+}
+
+void Minesweeper::key_listener(void* object, char key) {
+    Minesweeper* that = (Minesweeper*) object;
+    that->on_key_press(key);
+}
+
+void Minesweeper::on_key_press(char key) {
+    if (key == 'q') {
+        this->k_obs->end_listening();
+    }
+
+    this->draw();
+}
+
+void Minesweeper::draw() const {
     for (int x = 0; x < width; x++) {
         for (int y = 0; y < height; y++) {
             auto square = board->get_square(x, y);
@@ -30,20 +51,4 @@ int main() {
             }
         }
     }
-
-    system("stty raw");
-    while(1) {
-        char c = getchar();
-
-        if (c == 'q') {
-            break;
-        }
-    }
-
-    delete renderer;
-    delete board;
-
-    return 0;
 }
-
- 

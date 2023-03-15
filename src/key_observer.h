@@ -6,7 +6,7 @@
 
 class KeyObserver {
 public:
-    void add_listener(std::function<void(char)> listener);
+    void add_listener(void* object, std::function<void(void*, char)> listener);
 
     // Start listening for key presses.
     // This will lock up the current thread.
@@ -16,7 +16,8 @@ public:
 private:
     bool is_listening = false;
 
-    std::vector<std::function<void(char)>> listeners;
+    // A vector with an object and its method
+    std::vector<std::pair<void*, std::function<void(void*, char)>>> listeners;
     void listen() const;
 };
 
