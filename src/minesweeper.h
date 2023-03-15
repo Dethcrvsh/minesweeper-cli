@@ -4,6 +4,7 @@
 #include "board.h"
 #include "renderer.h"
 #include "key_observer.h"
+#include "graphics_handler.h"
 
 class Minesweeper {
 public:
@@ -22,6 +23,7 @@ private:
 
     Board *board;
     Renderer *renderer;
+    GraphicsHandler *g_handler;
     KeyObserver *k_obs;
 
     //TODO: Probably remove this

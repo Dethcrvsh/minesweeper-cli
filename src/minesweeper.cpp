@@ -4,9 +4,11 @@
 Minesweeper::Minesweeper(int width, int height, int bombs) 
     : width(width), height(height) {
     this->board = new Board(width, height, bombs);
-    this->renderer = new Renderer(width, height, &std::cout);
+    this->renderer = new Renderer(&std::cout);
+    this->g_handler = new GraphicsHandler(width, height, renderer);
     this->k_obs = new KeyObserver();
 
+    // Start listening for keystrokes
     this->k_obs->add_listener(this, Minesweeper::key_listener);
     this->k_obs->start_listening();
 }
@@ -35,19 +37,19 @@ void Minesweeper::draw() const {
             auto square = board->get_square(x, y);
 
             if (square->is_bomb) {
-                renderer->draw_to_board(x, y, "\033[1;37m💣\033[0m");
+                g_handler->draw_to_board(x, y, "\033[1;37m💣\033[0m");
             } 
             if (square->count == 1) {
-                renderer->draw_to_board(x, y, "\033[1;34m1\033[0m");
+                g_handler->draw_to_board(x, y, "\033[1;34m1\033[0m");
             }
             if (square->count == 2) {
-                renderer->draw_to_board(x, y, "\033[1;32m2\033[0m");
+                g_handler->draw_to_board(x, y, "\033[1;32m2\033[0m");
             }
             if (square->count == 3) {
-                renderer->draw_to_board(x, y, "\033[1;31m3\033[0m");
+                g_handler->draw_to_board(x, y, "\033[1;31m3\033[0m");
             }
             if (square->count == 4) {
-                renderer->draw_to_board(x, y, "\033[1;35m4\033[0m");
+                g_handler->draw_to_board(x, y, "\033[1;35m4\033[0m");
             }
         }
     }
