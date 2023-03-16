@@ -27,6 +27,8 @@ struct Keybinds {
         {'s', MOVE_DOWN},
         {40, MOVE_DOWN},
 
-        {'r', UNCOVER}
+        {'f', FLAG},
+
+        {'g', UNCOVER}
     };    
 };

@@ -31,6 +31,12 @@ void Board::uncover(int x, int y) {
     get_square(x, y)->is_open = true;
 }
 
+
+void Board::set_flag(int x, int y) {
+    struct Square *square = get_square(x, y);
+    square->is_flagged = !square->is_flagged;
+}
+
 void Board::populate_bombs() {
     // Generate random seed
     srand(time(NULL));

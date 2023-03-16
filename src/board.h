@@ -8,6 +8,7 @@
 struct Square {
     bool is_open;
     bool is_bomb;
+    bool is_flagged;
     int count;
 };
 
@@ -23,6 +24,9 @@ public:
     int get_height() const;
 
     void uncover(int x, int y);
+
+    // Sets or unsets the flag
+    void set_flag(int x, int y);
 
 private:
     int width;

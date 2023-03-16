@@ -41,11 +41,6 @@ void GraphicsHandler::draw_to_board(int x, int y, std::string text, Color color)
 void GraphicsHandler::move_selection(int x, int y) {
     selection_x += x;
     selection_y += y;
-
-    // TODO: Remove hack
-    renderer->clear();
-    draw_board();
-    draw_board_selection();
 }
 
 std::pair<int, int> GraphicsHandler::abs_to_board(int x, int y) const {
@@ -167,9 +162,19 @@ void GraphicsHandler::draw_board_content() const {
         for (int x = 0; x < board->get_width(); x++) {
             struct Square *square = board->get_square(x, y);
 
+            if (square->is_flagged) {
+                draw_to_board(x, y, "🏴", red);
+                continue;
+            }
+
             if (!square->is_open) {
                 draw_to_board(x, y, "■", white);
                 continue;
+            }
+
+
+            if (square->is_bomb) {
+                draw_to_board(x, y, "💥", red);
             }
 
             if (square->is_bomb || square->count == 0) {

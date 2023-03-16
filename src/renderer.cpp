@@ -18,8 +18,6 @@ Renderer::~Renderer() {
 
 }
 
-
-
 void Renderer::ansi_command(std::string &command) const {
     *this->stream << this->ESC << this->CONTROL_SEQ << command;
 }
