@@ -36,41 +36,16 @@ void Minesweeper::on_key_press(char key) {
     }
 
     Action action = key_it->second;
-
     // TODO: Move selection, it is probably in the wrong class
     
     switch(action) {
-        case MOVE_LEFT  :   g_handler->move_selection(-1, 0);     break;
-        case MOVE_RIGHT :   g_handler->move_selection(1, 0);      break;
-        case MOVE_UP    :   g_handler->move_selection(0, -1);     break;
-        case MOVE_DOWN  :   g_handler->move_selection(0, 1);      break;
-        case FLAG       :   board->set_flag(g_handler->selection_x, g_handler->selection_y);                break;
-        case UNCOVER    :   board->uncover(g_handler->selection_x, g_handler->selection_y);     break;
+        case MOVE_LEFT  :   board->move_selection(-1, 0);     break;
+        case MOVE_RIGHT :   board->move_selection(1, 0);      break;
+        case MOVE_UP    :   board->move_selection(0, -1);     break;
+        case MOVE_DOWN  :   board->move_selection(0, 1);      break;
+        case FLAG       :   board->set_flag();                break; 
+        case UNCOVER    :   board->uncover();                 break;
     }
 
     g_handler->draw();
 }
-
-/*void Minesweeper::draw() const {
-    for (int x = 0; x < width; x++) {
-        for (int y = 0; y < height; y++) {
-            auto square = board->get_square(x, y);
-
-            if (square->is_bomb) {
-                g_handler->draw_to_board(x, y, "\033[1;37m💣\033[0m");
-            } 
-            if (square->count == 1) {
-                g_handler->draw_to_board(x, y, "\033[1;34m1\033[0m");
-            }
-            if (square->count == 2) {
-                g_handler->draw_to_board(x, y, "\033[1;32m2\033[0m");
-            }
-            if (square->count == 3) {
-                g_handler->draw_to_board(x, y, "\033[1;31m3\033[0m");
-            }
-            if (square->count == 4) {
-                g_handler->draw_to_board(x, y, "\033[1;35m4\033[0m");
-            }
-        }
-    }
-}*/

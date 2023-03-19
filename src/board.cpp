@@ -7,9 +7,12 @@
 Board::Board(int width, int height, int bombs)
     : width(width), height(height), bombs(bombs) {
 
-    this->init_board();
-    this->populate_bombs();
-    this->calculate_numbers();    
+    init_board();
+    
+    populated = false;
+
+    selection.first = 0;
+    selection.second = 0;
 }
 
 void Board::init_board() {
@@ -27,17 +30,55 @@ int Board::get_width() const { return width; }
 
 int Board::get_height() const { return height; }
 
-void Board::uncover(int x, int y) {
-    get_square(x, y)->is_open = true;
+std::pair<int, int>* Board::get_selection() {
+    return &selection;
 }
 
+void Board::uncover() {
+    if (!populated) {
+        populated = true;
+        populate_bombs(selection.first, selection.second, SAFE_RADIUS);
+        calculate_numbers();    
+    }
 
-void Board::set_flag(int x, int y) {
+    struct Square *square = get_square(selection.first, selection.second);
+
+    if (square->count == 0) {
+        uncover_empty_neighbours(selection.first, selection.second);
+    }
+
+    get_square(selection.first, selection.second)->is_open = true;
+}
+
+void Board::uncover_empty_neighbours(int x, int y) {
     struct Square *square = get_square(x, y);
+
+    square->is_open = true;
+
+    if (square->count > 0 || square->is_bomb) {
+        return;
+    }
+
+    for (auto neighbour : get_neighbours(x, y)) {
+        struct Square *neigh_square = get_square(neighbour.first, neighbour.second);
+
+        if (!neigh_square->is_open) {
+            uncover_empty_neighbours(neighbour.first, neighbour.second);
+        }
+    }
+}
+
+void Board::move_selection(int x, int y) {
+    selection.first += x;
+    selection.second += y;
+}
+
+void Board::set_flag() {
+    struct Square *square = get_square(selection.first, selection.second);
     square->is_flagged = !square->is_flagged;
 }
 
-void Board::populate_bombs() {
+void Board::populate_bombs(int safe_x, int safe_y, int safe_radius) {
     // Generate random seed
     srand(time(NULL));
 
@@ -48,6 +89,11 @@ void Board::populate_bombs() {
 
         int x = rand_index % this->width;
         int y = rand_index / this->width;
+
+        // Do not place bombs in the safe zone
+        if (abs(x - safe_x) <= safe_radius && abs(y - safe_y) <= safe_radius) {
+            continue;
+        }
 
         struct Square *square = this->get_square(x, y);
 

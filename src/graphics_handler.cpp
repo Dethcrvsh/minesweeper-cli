@@ -7,9 +7,6 @@
 GraphicsHandler::GraphicsHandler(Board *board, Renderer *renderer)
     : board(board), renderer(renderer) {
 
-    selection_x = 0;
-    selection_y = 0;
-
     draw_board();
     draw_board_selection();
 } 
@@ -36,11 +33,6 @@ void GraphicsHandler::draw_to_board(int x, int y, std::string text, Color color)
     renderer->start_color(color);
     renderer->draw(coords.first, coords.second, text);
     renderer->reset_color();
-}
-
-void GraphicsHandler::move_selection(int x, int y) {
-    selection_x += x;
-    selection_y += y;
 }
 
 std::pair<int, int> GraphicsHandler::abs_to_board(int x, int y) const {
@@ -73,7 +65,8 @@ void GraphicsHandler::draw_box(int x_pos, int y_pos, int width, int height) cons
 }
 
 void GraphicsHandler::draw_board_selection() const {
-    std::pair<int, int> pos = abs_to_board(selection_x, selection_y);
+    std::pair<int, int> *selection = board->get_selection();
+    std::pair<int, int> pos = abs_to_board(selection->first, selection->second);
 
     renderer->start_color(SELECTION);
     draw_box(pos.first - 2, pos.second - 1, (CELL_SIZE + 2)*2 - 1, CELL_SIZE + 2);
@@ -171,7 +164,6 @@ void GraphicsHandler::draw_board_content() const {
                 draw_to_board(x, y, "■", white);
                 continue;
             }
-
 
             if (square->is_bomb) {
                 draw_to_board(x, y, "💥", red);

@@ -10,13 +10,6 @@ public:
 
     void draw() const;
     
-    // Move the selection in a given direction
-    void move_selection(int x, int y);
-    
-    // TODO: Not like this
-    int selection_x;
-    int selection_y;
-
 private:
     static const int CELL_SIZE = 1;
 
