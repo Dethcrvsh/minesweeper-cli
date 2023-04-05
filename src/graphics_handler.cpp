@@ -47,6 +47,7 @@ void GraphicsHandler::draw_box(int x_pos, int y_pos, int width, int height) cons
     renderer->draw(x_pos, y_pos, this->TOP_LEFT);
     renderer->draw(x_pos + width - 1, y_pos, this->TOP_RIGHT);
     renderer->draw(x_pos, y_pos + height - 1, this->BOTTOM_LEFT);
+
     renderer->draw(x_pos + width - 1, y_pos + height - 1, this->BOTTOM_RIGHT);
 
     // Draw the horizontal lines
@@ -156,12 +157,12 @@ void GraphicsHandler::draw_board_content() const {
             struct Square *square = board->get_square(x, y);
 
             if (square->is_flagged) {
-                draw_to_board(x, y, "🏴", red);
+                draw_to_board(x, y, "🏴", white);
                 continue;
             }
 
             if (!square->is_open) {
-                draw_to_board(x, y, "■", white);
+                fill_square(x, y, "█", white);
                 continue;
             }
 
@@ -176,4 +177,17 @@ void GraphicsHandler::draw_board_content() const {
             draw_to_board(x, y, std::to_string(square->count), NUMBER_COLOR.at(square->count));
         }
     }
+}
+
+void GraphicsHandler::fill_square(int x, int y, std::string text, Color color) const {
+    auto coords = abs_to_board(x, y);
+
+    // This is such a hack and I hate it
+    for (int y = 0; y < CELL_SIZE; y++) {
+        for (int x = -1; x < CELL_SIZE*2; x++) {
+            renderer->start_color(color);
+            renderer->draw(coords.first + x , coords.second + y, text);
+            renderer->reset_color();
+        }
+    } 
 }

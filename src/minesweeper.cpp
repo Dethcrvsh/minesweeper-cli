@@ -36,7 +36,6 @@ void Minesweeper::on_key_press(char key) {
     }
 
     Action action = key_it->second;
-    // TODO: Move selection, it is probably in the wrong class
     
     switch(action) {
         case MOVE_LEFT  :   board->move_selection(-1, 0);     break;

@@ -69,8 +69,19 @@ void Board::uncover_empty_neighbours(int x, int y) {
 }
 
 void Board::move_selection(int x, int y) {
-    selection.first += x;
-    selection.second += y;
+    const int x_new = selection.first + x;
+    const int y_new = selection.second + y;
+
+    if (x_new < 0 || width <= x_new) {
+        return;
+    }
+
+    if (y_new < 0 || height <= y_new) {
+        return;
+    }
+
+    selection.first = x_new;
+    selection.second = y_new;
 }
 
 void Board::set_flag() {

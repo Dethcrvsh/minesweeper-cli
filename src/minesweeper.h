@@ -28,6 +28,8 @@ private:
     KeyObserver *k_obs;
     struct Keybinds keybinds;
 
+    std::vector<char> key_buffer;
+
     //TODO: Probably remove this
     void draw() const;
 };

@@ -64,6 +64,8 @@ private:
 
     void draw_to_board(int x, int y, std::string text, Color color) const;
     void draw_board_selection() const;
+
+    void fill_square(int x, int y, std::string text, Color color) const;
 };
 
 #endif
