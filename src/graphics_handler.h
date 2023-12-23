@@ -25,8 +25,8 @@ private:
     static constexpr char BOTTOM_RIGHT[] = "┘";
     static constexpr char BOTTOM_LEFT[] = "└";
 
-    static const int BOARD_MARGIN_X = 10;
-    static const int BOARD_MARGIN_Y = 0;
+    static const int DEFAULT_BOARD_MARGIN_X = 10;
+    static const int DEFAULT_BOARD_MARGIN_Y = 0;
 
     static const Color BOARD_OUTLINE = white;
     static const Color SELECTION = yellow;
@@ -50,11 +50,16 @@ private:
     int term_width;
     int term_height;
 
+    int board_margin_x;
+    int board_margin_y;
+
     Renderer* renderer;
 
     // Set the terminal dimensions
     void set_term_dim();
     std::pair<int, int> abs_to_board(int x, int y) const;
+
+    void center_board();
 
     void draw_box(int x_pos, int y_pos, int width, int height) const;
 

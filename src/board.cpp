@@ -43,6 +43,10 @@ void Board::uncover() {
 
     struct Square *square = get_square(selection.first, selection.second);
 
+    if (square->is_flagged) {
+        return;
+    }
+
     if (square->count == 0) {
         uncover_empty_neighbours(selection.first, selection.second);
     }
@@ -86,7 +90,10 @@ void Board::move_selection(int x, int y) {
 
 void Board::set_flag() {
     struct Square *square = get_square(selection.first, selection.second);
-    square->is_flagged = !square->is_flagged;
+
+    if (!square->is_open) {
+        square->is_flagged = !square->is_flagged;
+    }
 }
 
 void Board::populate_bombs(int safe_x, int safe_y, int safe_radius) {
@@ -132,7 +139,7 @@ void Board::print() const {
 
 void Board::calculate_numbers() {
     for (int y = 0; y < this->height; y++) {
-        for(int x = 0; x < this->width; x++) {
+        for (int x = 0; x < this->width; x++) {
             struct Square *square = this->get_square(x, y);
 
             if (!square->is_bomb) {

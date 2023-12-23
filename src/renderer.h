@@ -11,17 +11,28 @@ public:
 
     ~Renderer();
 
-    void draw(int x, int y, std::string text) const;
+    void draw(int x, int y, std::string text);
     void clear() const;
 
-    void start_color(Color color) const;
-    void reset_color() const;
+    void start_color(Color color);
+    void reset_color();
 
 private:
+    struct BufferEntry {
+        char text;
+	Color color;	
+    };
+
+    static const int BUFFER_WIDTH = 400;
+    static const int BUFFER_HEIGHT = 100;
+
     // Ansi escape codes
     static constexpr char ESC[] = "\033";
     static constexpr char CONTROL_SEQ[] = "[";
     static constexpr char COMMAND_DIV[] = ";";
+
+    struct BufferEntry buffer[BUFFER_WIDTH * BUFFER_HEIGHT];
+    Color current_color;
 
     std::ostream *stream;
 
@@ -32,10 +43,7 @@ private:
     void move_cursor(int x, int y) const;
     void reset_cursor() const;
 
-    // Draws a box at the given position
-    void draw_box(int x_pos, int y_pos, int width, int height) const;
-
-    void draw_board(int x_pos, int y_pos) const;
+    bool add_to_buffer(int x, int y, std::string text);
 
     // Translate absolute to board coordinates
     std::pair<int, int> abs_to_board(int x, int y) const;
